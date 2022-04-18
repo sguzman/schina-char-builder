@@ -1,30 +1,48 @@
-trait Prog extends App {
+trait ProgTrait extends App {
   import scala.io.Source
 
   type tup3 = Tuple3[Char, String, String]
 
-  def f1 : Array[String] => String
-  def f2 : String => Source
-  def f3 : Source => String
-  def f4 : String => List[String]
-  def f5 : List[String] => List[tup3]
-  def f6 : List[tup3] => List[String]
+  val f1 : Array[String] => String
+  val f2 : String => Source
+  val f3 : Source => String
+  val f4 : String => Array[String]
+  val f5 : Array[String] => Array[Array[String]]
+  val f6 : Array[Array[String]] => Array[String]
 
-  def ff1 : String => tup3
-  def ff2 : tup3 => String
+  val ff1 : String => Array[String]
+  val ff2 : Array[String] => String
 
-  def ff = ff1 andThen ff2
-  def ffmap(l: List[String]) = l map ff
+  final def f = f1 andThen f2 andThen f3 andThen f4
+}
 
-  def f = f1 andThen f2 andThen f3 andThen f4 andThen ffmap
+class Prog extends ProgTrait {
+  import scala.io.Source
+
+  override final val f1 = _ apply 0
+  override final val f2 = Source fromFile _
+  override final val f3 = _.getLines.mkString
+  override final val f4 = _ split "\n"
+  override final val f5 = _ map ff1
+  override final val f6 = _ map ff2
+
+  override final val ff1 = _ split "\t"
+  override final val ff2 = (list: Array[String]) => s"{\n" +
+    s"\"char\": ${list(0)},\n" +
+    s"\"pro\": ${list(1)},\n" +
+    s"\"def\": ${list(2)}\n" +
+    s"}"
+
+  def apply(args: Array[String]) = super.f(args)
 }
 
 object Main {
   def main(args: Array[String]): Unit = {
     println("hi")
     args foreach println
-    val arg = args.head
-
+    val prog = Prog()
+    val output = prog(args)
+    output foreach println
 
     println("bye")
   }
